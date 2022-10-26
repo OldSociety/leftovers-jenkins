@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'rootpassword'
+    ports:
+      - "3306:3306"
+    volumes:
+    - .docker/:/docker-entrypoint-initdb.d
+    - mysql_db_data_container:/var/lib/mysql
+  restaurant-image:
+    depends_on:
+      - db
+    image: restaurants:latest
+    ports: 
+      - 8080:8080
+    extra_hosts:
+      - leftoversdb:host-gateway
+  orders-image:
+    depends_on:
+      - db
+    image: orders
+    ports: 
+      - 8081:8081
+    extra_hosts:
+      - localhost:host-gateway
+  users-image:
+    depends_on:
+      - db
+    image: users
+    ports: 
+      - 8082:8082
+    extra_hosts:
+      - localhost:host-gateway
+ 
+  
+volumes:
+  mysql_db_data_container:
